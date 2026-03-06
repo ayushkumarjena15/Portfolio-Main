@@ -122,8 +122,14 @@ const GuestbookPage = () => {
             .subscribe();
 
         // Check current session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
+        supabase.auth.getUser().then(({ data: { user }, error }) => {
+            if (error || !user) {
+                // If the user's account is deleted or invalid, sign out locally
+                supabase.auth.signOut().catch(() => { });
+                setUser(null);
+            } else {
+                setUser(user);
+            }
         });
 
         // Listen for auth changes
