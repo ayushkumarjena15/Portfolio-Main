@@ -80,23 +80,6 @@ const GuestbookPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoadingInitial, setIsLoadingInitial] = useState(true);
 
-    // Initial Fetch & Auth checking
-    useEffect(() => {
-        fetchSignatures();
-
-        // Check current session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-        });
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
     const fetchSignatures = async () => {
         try {
             const { data, error } = await supabase
@@ -113,6 +96,46 @@ const GuestbookPage = () => {
             setIsLoadingInitial(false);
         }
     };
+
+    // Initial Fetch & Auth checking + Realtime Subscription
+    useEffect(() => {
+        fetchSignatures();
+
+        // Subscription for Real-time database updates without refreshing
+        const channel = supabase
+            .channel('realtime_guestbook')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'guestbook' }, (payload) => {
+                setSignatures((currentSignatures) => {
+                    // Prevent duplicates
+                    if (currentSignatures.some(sig => sig.id === payload.new.id)) return currentSignatures;
+
+                    const newSignatures = [payload.new, ...currentSignatures];
+                    // Re-sort to maintain pinned at top
+                    return newSignatures.sort((a, b) => {
+                        if (a.is_pinned === b.is_pinned) {
+                            return new Date(b.created_at) - new Date(a.created_at);
+                        }
+                        return a.is_pinned ? -1 : 1;
+                    });
+                });
+            })
+            .subscribe();
+
+        // Check current session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     const handleLogin = async (provider) => {
         try {
