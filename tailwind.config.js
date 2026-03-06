@@ -7,12 +7,14 @@ export default {
     theme: {
         extend: {
             colors: {
-                background: '#0c0a09', // Matte Black (Stone 950)
-                surface: '#1c1917',    // Deep Stone 900
-                primary: '#a8a29e',    // Stone 400 (Warm Taupe)
-                secondary: '#78716c',  // Stone 500 (Muted Earth)
-                accent1: '#c2a07a',    // Soft Gold / Sand
-                accent2: '#e7e5e4',    // Cream / Stone 200
+                black: 'rgb(var(--color-black) / <alpha-value>)',
+                white: 'rgb(var(--color-white) / <alpha-value>)',
+                background: 'rgb(var(--color-background) / <alpha-value>)',
+                surface: 'rgb(var(--color-surface) / <alpha-value>)',
+                primary: 'rgb(var(--color-primary) / <alpha-value>)',
+                secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+                accent1: 'rgb(var(--color-accent1) / <alpha-value>)',
+                accent2: 'rgb(var(--color-accent2) / <alpha-value>)',
                 gold: {
                     light: '#d4c3b0',
                     DEFAULT: '#c2a07a',

@@ -1,26 +1,9 @@
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
-import { Pin, Heart } from 'lucide-react';
-
-const signatures = [
-    { id: 1, name: 'Ayush Kumar Jena', date: 'JAN 1', message: 'Welcome ❤️', isPinned: true, seed: 'Ayush1' },
-    { id: 2, name: 'Laura', date: 'FEB 22', message: 'Amazing UI and smooth interactions! Loved it!', seed: 'LauraX' },
-    { id: 3, name: 'Kaushal S', date: 'FEB 22', message: 'Nice Site !', seed: 'Kaushal1' },
-    { id: 4, name: 'Dhruv Sharma', date: 'FEB 21', message: 'Great and inspiring work buddy ! 🤙', seed: 'Dhruv1' },
-    { id: 5, name: 'Prashant Chouhan', date: 'FEB 21', message: 'lovelyyyy', seed: 'Prashant2' },
-    { id: 6, name: 'chintan', date: 'FEB 16', message: 'Lovely site bro', seed: 'Chintan1' },
-    { id: 7, name: 'Omkar', date: 'FEB 16', message: 'Kindly provide me with the code, sir.', seed: 'Omkar1' },
-    { id: 8, name: 'Sameer Sahu', date: 'FEB 4', message: 'Great work dude keep inspiring. Looking at ur UI design and smooth motions i must say u have great taste in designing. HOPE U DO GOOD.....', likedBy: 'Ayush', seed: 'Sameer1' },
-    { id: 9, name: 'Wade Namada', date: 'FEB 2', message: 'blown away this is mad impressive', seed: 'Wade1' },
-    { id: 10, name: 'Srimadhavan G', date: 'FEB 2', message: 'Mythical portfolio pull', seed: 'Sri3' },
-    { id: 11, name: 'harshit yadav', date: 'FEB 1', message: 'It\'s cool , very very cool website', seed: 'Harshit2' },
-    { id: 12, name: 'Mr Diggaj', date: 'FEB 1', message: 'nice tho', seed: 'Diggaj1' },
-    { id: 13, name: 'Varun', date: 'FEB 1', message: 'This is such a high-quality premium portfolio 🚀', seed: 'Varun1' },
-    { id: 14, name: 'bhavneet singh', date: 'JAN 31', message: 'Cool portfolio bhai nice use of motions 🤩', seed: 'Bhavneet1' },
-    { id: 15, name: 'Sweety Nagar', date: 'JAN 31', message: 'Woohoo! 🤩 Your portfolio is LIIKEEE 🔥! The animation is so smooth, it\'s like art in motion! 🎨', likedBy: 'Ayush', seed: 'Sweety1' },
-    { id: 16, name: 'Vanshika Yadav', date: 'JAN 30', message: 'Animations are so smooth , loved it 💖', seed: 'Vanshika1' },
-];
+import { Pin, Heart, LogOut, Send, Loader2 } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -35,58 +18,151 @@ const itemVariants = {
     visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4 } }
 };
 
-const SignatureCard = ({ name, date, message, isPinned, likedBy, seed }) => (
-    <motion.div
-        variants={itemVariants}
-        className={`relative bg-[#0d0d0d] rounded-2xl p-6 flex flex-col h-full ${isPinned ? 'border border-[#2563eb] shadow-[0_0_20px_rgba(37,99,235,0.15)] ring-1 ring-[#2563eb]/50' : 'border border-white/5 hover:border-white/10 transition-colors duration-300'}`}
-    >
-        {isPinned && (
-            <div className="absolute -top-3 -right-3 bg-[#2563eb] w-7 h-7 rounded-full flex items-center justify-center z-10 shadow-lg">
-                <Pin size={12} className="text-white fill-white" />
+const SignatureCard = ({ name, created_at, message, is_pinned, liked_by, avatar_url }) => {
+    const formattedDate = new Date(created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+
+    return (
+        <motion.div
+            variants={itemVariants}
+            className={`relative bg-[#0d0d0d] rounded-2xl p-6 flex flex-col h-full ${is_pinned ? 'border border-[#2563eb] shadow-[0_0_20px_rgba(37,99,235,0.15)] ring-1 ring-[#2563eb]/50' : 'border border-white/5 hover:border-white/10 transition-colors duration-300'}`}
+        >
+            {is_pinned && (
+                <div className="absolute -top-3 -right-3 bg-[#2563eb] w-7 h-7 rounded-full flex items-center justify-center z-10 shadow-lg">
+                    <Pin size={12} className="text-white fill-white" />
+                </div>
+            )}
+
+            {/* Giant Quote mark in the background */}
+            <div className="absolute top-2 right-4 text-white/[0.04] font-serif text-8xl leading-none italic pointer-events-none select-none">
+                "
             </div>
-        )}
 
-        {/* Giant Quote mark in the background */}
-        <div className="absolute top-2 right-4 text-white/[0.04] font-serif text-8xl leading-none italic pointer-events-none select-none">
-            "
-        </div>
-
-        <div className="flex items-center gap-3 mb-4 relative z-10">
-            <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=transparent`}
-                alt={name}
-                className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5"
-            />
-            <div>
-                <h4 className="text-white font-bold text-sm">{name}</h4>
-                <p className="text-white/30 text-[10px] uppercase font-mono mt-0.5 tracking-wider">{date}</p>
+            <div className="flex items-center gap-3 mb-4 relative z-10">
+                <img
+                    src={avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}&backgroundColor=transparent`}
+                    alt={name}
+                    className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 object-cover"
+                />
+                <div>
+                    <h4 className="text-white font-bold text-sm">{name}</h4>
+                    <p className="text-white/30 text-[10px] uppercase font-mono mt-0.5 tracking-wider">{formattedDate}</p>
+                </div>
             </div>
-        </div>
 
-        <p className="text-white/70 text-sm leading-relaxed flex-grow relative z-10 mb-2">
-            {message}
-        </p>
+            <p className="text-white/70 text-sm leading-relaxed flex-grow relative z-10 mb-2 whitespace-pre-wrap">
+                {message}
+            </p>
 
-        {(isPinned || likedBy) && (
-            <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between relative z-10">
-                {isPinned && (
-                    <div className="flex items-center gap-2 text-[#2563eb]">
-                        <Pin size={12} className="fill-[#2563eb]" />
-                        <span className="text-xs font-bold">Pinned</span>
-                    </div>
-                )}
-                {likedBy && !isPinned && (
-                    <div className="flex items-center justify-between w-full">
-                        <span className="text-[#ec4899] text-[11px] italic font-medium">Liked by {likedBy}</span>
-                        <Heart size={14} className="text-[#ec4899] fill-[#ec4899]" />
-                    </div>
-                )}
-            </div>
-        )}
-    </motion.div>
-);
+            {(is_pinned || liked_by) && (
+                <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between relative z-10">
+                    {is_pinned && (
+                        <div className="flex items-center gap-2 text-[#2563eb]">
+                            <Pin size={12} className="fill-[#2563eb]" />
+                            <span className="text-xs font-bold">Pinned</span>
+                        </div>
+                    )}
+                    {liked_by && !is_pinned && (
+                        <div className="flex items-center justify-between w-full">
+                            <span className="text-[#ec4899] text-[11px] italic font-medium">Liked by {liked_by}</span>
+                            <Heart size={14} className="text-[#ec4899] fill-[#ec4899]" />
+                        </div>
+                    )}
+                </div>
+            )}
+        </motion.div>
+    );
+};
 
 const GuestbookPage = () => {
+    const [signatures, setSignatures] = useState([]);
+    const [user, setUser] = useState(null);
+    const [newMessage, setNewMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+
+    // Initial Fetch & Auth checking
+    useEffect(() => {
+        fetchSignatures();
+
+        // Check current session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const fetchSignatures = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('guestbook')
+                .select('*')
+                .order('is_pinned', { ascending: false })
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            if (data) setSignatures(data);
+        } catch (error) {
+            console.error('Error fetching signatures:', error.message);
+        } finally {
+            setIsLoadingInitial(false);
+        }
+    };
+
+    const handleLogin = async (provider) => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: window.location.origin + '/guestbook'
+                }
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error logging in:', error.message);
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error logging out:', error.message);
+        }
+    };
+
+    const submitSignature = async (e) => {
+        e.preventDefault();
+        if (!newMessage.trim() || !user || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            const { error } = await supabase.from('guestbook').insert([
+                {
+                    user_id: user.id,
+                    name: user.user_metadata.full_name || user.user_metadata.user_name || 'Anonymous',
+                    avatar_url: user.user_metadata.avatar_url,
+                    message: newMessage.trim(),
+                    is_pinned: false
+                }
+            ]);
+
+            if (error) throw error;
+            setNewMessage('');
+            fetchSignatures(); // Refresh the list
+        } catch (error) {
+            console.error('Error submitting signature:', error.message);
+            alert("Oops! Failed to post your message. Make sure the database is set up.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <section className="min-h-screen bg-background pt-32 pb-20 px-6 max-w-7xl mx-auto relative overflow-hidden">
 
@@ -109,26 +185,82 @@ const GuestbookPage = () => {
                     </h1>
                 </div>
 
-                <div className="w-full lg:w-[420px] bg-[#0a0a0a]/80 backdrop-blur-md border border-white/5 rounded-3xl p-8 md:p-10 flex-shrink-0 relative">
-                    <h2 className="text-3xl font-bold text-white mb-0.5 tracking-tight">Leave your</h2>
-                    <h3 className="text-[2.5rem] font-serif italic text-white/50 mb-6">Signature!</h3>
+                {/* Interactive Login/Sign Panel */}
+                <div className="w-full lg:w-[420px] bg-[#0a0a0a]/80 backdrop-blur-md border border-white/5 rounded-3xl p-8 md:p-10 flex-shrink-0 relative overflow-hidden transition-all h-full">
+                    <AnimatePresence mode="wait">
+                        {!user ? (
+                            <motion.div
+                                key="login-form"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="flex flex-col h-full"
+                            >
+                                <h2 className="text-3xl font-bold text-white mb-0.5 tracking-tight">Leave your</h2>
+                                <h3 className="text-[2.5rem] font-serif italic text-white/50 mb-6">Signature!</h3>
 
-                    <p className="text-white/50 text-[13px] mb-10 leading-relaxed max-w-[90%]">
-                        Sign in to leave your mark, customize your profile, and connect with other visitors.
-                    </p>
+                                <p className="text-white/50 text-[13px] mb-10 leading-relaxed max-w-[90%]">
+                                    Sign in to leave your mark, customize your profile, and connect with other visitors.
+                                </p>
 
-                    <div className="flex flex-col gap-4">
-                        <button className="w-full bg-white text-black py-3.5 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 hover:shadow-white/20">
-                            <FcGoogle size={20} /> <span className="text-[15px]">Google</span>
-                        </button>
-                        <button className="w-full bg-[#1a1a1a] border border-white/10 text-white py-3.5 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-[#222] transition-colors shadow-lg shadow-black/50">
-                            <FaGithub size={20} /> <span className="text-[15px]">GitHub</span>
-                        </button>
-                    </div>
+                                <div className="flex flex-col gap-4">
+                                    <button onClick={() => handleLogin('google')} className="w-full bg-white text-black py-3.5 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                                        <FcGoogle size={20} /> <span className="text-[15px]">Continue with Google</span>
+                                    </button>
+                                    <button onClick={() => handleLogin('github')} className="w-full bg-[#1a1a1a] border border-white/10 text-white py-3.5 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-[#222] transition-colors">
+                                        <FaGithub size={20} /> <span className="text-[15px]">Continue with GitHub</span>
+                                    </button>
+                                </div>
 
-                    <p className="text-center text-white/30 text-[10px] mt-8 font-medium">
-                        By joining, you agree to our Terms of Service.
-                    </p>
+                                <p className="text-center text-white/30 text-[10px] mt-8 font-medium">
+                                    By joining, you agree to our Terms of Service.
+                                </p>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="submit-form"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="flex flex-col h-full"
+                            >
+                                <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <img src={user.user_metadata?.avatar_url} alt="Profile" className="w-10 h-10 rounded-full border border-white/10" />
+                                        <div>
+                                            <p className="text-white text-sm font-bold">{user.user_metadata?.full_name || user.user_metadata?.user_name || 'Signed In'}</p>
+                                            <p className="text-white/40 text-[11px]">Ready to sign.</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={handleSignOut} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-red-400 text-white/60 transition-colors" title="Sign out">
+                                        <LogOut size={14} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={submitSignature} className="flex flex-col gap-4 flex-grow">
+                                    <textarea
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        placeholder="What's on your mind?..."
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 resize-none h-32 transition-all"
+                                        maxLength={500}
+                                        required
+                                    />
+                                    <div className="flex items-center justify-between px-1">
+                                        <span className="text-[10px] font-mono text-white/30">{newMessage.length}/500</span>
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting || !newMessage.trim()}
+                                            className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                        >
+                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                                            Sign
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </motion.div>
 
@@ -140,23 +272,28 @@ const GuestbookPage = () => {
             </div>
 
             {/* Masonry-like Grid for Signatures */}
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            >
-                {signatures.map((sig) => (
-                    <SignatureCard key={sig.id} {...sig} />
-                ))}
-            </motion.div>
+            {isLoadingInitial ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
+                    <Loader2 size={32} className="animate-spin text-white" />
+                    <p className="text-white/40 text-sm font-mono tracking-widest uppercase">Fetching DB...</p>
+                </div>
+            ) : signatures.length === 0 ? (
+                <div className="text-center py-20 text-white/40 text-sm">
+                    No signatures yet. Be the first to leave one!
+                </div>
+            ) : (
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                >
+                    {signatures.map((sig) => (
+                        <SignatureCard key={sig.id} {...sig} />
+                    ))}
+                </motion.div>
+            )}
 
-            {/* Load More Button */}
-            <div className="w-full flex justify-center mt-16">
-                <button className="px-8 py-3 bg-transparent border border-white/10 rounded-full text-white/70 text-sm font-bold hover:bg-white/5 hover:text-white transition-colors duration-300">
-                    Load More
-                </button>
-            </div>
         </section>
     );
 };
