@@ -452,20 +452,53 @@ const BentoGrid = () => {
                     </a>
                 </motion.div>
 
-                {/* Card 4: Clock Widget */}
+                {/* Card 4: Clock Widget with Crosshair Layout */}
                 <motion.div
-                    className="bento-card p-0 overflow-hidden flex items-center justify-center min-h-[200px] relative"
+                    className="bento-card p-0 overflow-hidden flex flex-col items-center justify-center min-h-[400px] relative bg-black group"
                     custom={3}
                     variants={cardVariants}
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, margin: "-50px" }}
                 >
-                    <AnalogClock timezone={timezones[selectedTimezone]} />
+                    {/* Crosshair Lines */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        {/* Horizontal Line */}
+                        <div className="absolute top-[40%] left-0 w-full h-[1px] bg-white/5 -translate-y-1/2" />
+                        {/* Vertical Line */}
+                        <div className="absolute left-1/2 top-0 w-[1px] h-full bg-white/5 -translate-x-1/2" />
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center gap-10">
+                        <AnalogClock timezone={timezones[selectedTimezone]} />
+
+                        {/* Timezone Selector integrated into the vertical line alignment */}
+                        <div className="flex flex-col gap-2 p-1.5 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm">
+                            {timezones.map((tz, idx) => (
+                                <button
+                                    key={tz.label}
+                                    onClick={() => setSelectedTimezone(idx)}
+                                    className={`flex items-center gap-3 px-5 py-2 rounded-xl transition-all duration-500 text-[10px] font-bold uppercase tracking-[0.2em] ${selectedTimezone === idx
+                                            ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+                                            : 'text-white/30 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <div className="w-5 h-3 rounded-[2px] overflow-hidden border border-white/10 shadow-sm">
+                                        <img
+                                            src={`https://flagcdn.com/w40/${tz.flag}.png`}
+                                            alt={tz.label}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <span className="opacity-80">{tz.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </motion.div>
 
                 {/* Card 5: Founder Card */}
-                <FounderCard cardVariants={cardVariants} selectedTimezone={selectedTimezone} onTimezoneChange={setSelectedTimezone} />
+                <FounderCard cardVariants={cardVariants} />
 
                 {/* Card 6: Detail Card with I sweat spacing */}
                 <motion.div
@@ -492,7 +525,6 @@ const AnalogClock = ({ timezone }) => {
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
-        // Update at 60fps for sweeping second hand
         let frame;
         const update = () => {
             setTime(new Date());
@@ -502,7 +534,6 @@ const AnalogClock = ({ timezone }) => {
         return () => cancelAnimationFrame(frame);
     }, []);
 
-    // Dynamic timezone offset
     const utc = time.getTime() + (time.getTimezoneOffset() * 60000);
     const tzTime = new Date(utc + (timezone.offset * 3600000));
 
@@ -510,112 +541,88 @@ const AnalogClock = ({ timezone }) => {
     const ms = tzTime.getMilliseconds();
     const minutes = tzTime.getMinutes();
     const hours = tzTime.getHours();
-    const date = tzTime.getDate();
 
     const secondDeg = (seconds + ms / 1000) * 6;
     const minuteDeg = (minutes + seconds / 60) * 6;
     const hourDeg = ((hours % 12) + minutes / 60) * 30;
 
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-background min-h-[220px] select-none">
-            {/* Outer Case / Bezel */}
-            <div className="relative w-44 h-44 md:w-52 md:h-52 rounded-full p-1 bg-gradient-to-br from-[#222] via-[#111] to-[#333] shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_-2px_5px_rgba(255,255,255,0.1)]">
+        <div className="relative select-none">
+            {/* Outer Architectural Ring (The 'Cut' Look) */}
+            <div className="relative w-52 h-52 md:w-60 md:h-60 rounded-full border border-white/5 bg-black flex items-center justify-center">
 
-                {/* Watch Face */}
-                <div className="relative w-full h-full rounded-full bg-[#0c0c0c] overflow-hidden shadow-[inset_0_2px_10px_rgba(0,0,0,1)] border border-white/5">
+                {/* Outer Shadow Ring */}
+                <div className="absolute inset-[-10px] rounded-full border border-white/[0.03] pointer-events-none" />
 
-                    {/* Radial Texture / Sunburst effect */}
-                    <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#050505_70%)]" />
-                    <div className="absolute inset-0 opacity-10 bg-[conic-gradient(from_0deg,_transparent_0deg,_white_20deg,_transparent_40deg,_white_60deg,_transparent_80deg,_white_100deg,_transparent_120deg,_white_140deg,_transparent_160deg,_white_180deg,_transparent_200deg,_white_220deg,_transparent_240deg,_white_260deg,_transparent_280deg,_white_300deg,_transparent_320deg,_white_340deg,_transparent_360deg)]" />
+                {/* Watch Metal Bezel */}
+                <div className="relative w-44 h-44 md:w-52 md:h-52 rounded-full p-[2px] bg-gradient-to-br from-[#333] via-[#111] to-[#444] shadow-2xl">
 
-                    {/* Minute Markers */}
-                    {[...Array(60)].map((_, i) => (
-                        <div
-                            key={i}
-                            className="absolute w-full h-full"
-                            style={{ transform: `rotate(${i * 6}deg)` }}
-                        >
-                            {i % 5 === 0 ? (
-                                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-[3px] h-4 flex flex-col items-center">
-                                    <div className="w-full h-full bg-gradient-to-b from-white to-neutral-500 rounded-sm shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
-                                    <div className="absolute top-[2px] w-[1px] h-[10px] bg-cyan-400/60 blur-[1px]" /> {/* Lume effect */}
-                                </div>
-                            ) : (
-                                <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-[1px] h-1.5 bg-white/20" />
-                            )}
+                    {/* Bezel Highlighting */}
+                    <div className="absolute inset-0 rounded-full border border-white/10" />
+
+                    {/* Watch Face Interior */}
+                    <div className="relative w-full h-full rounded-full bg-[#050505] overflow-hidden">
+
+                        {/* 24-Hour Ring numbering */}
+                        {[...Array(12)].map((_, i) => (
+                            <div key={i} className="absolute w-full h-full" style={{ transform: `rotate(${i * 30}deg)` }}>
+                                <span className="absolute top-2.5 left-1/2 -translate-x-1/2 text-[7px] font-bold text-white/30 tracking-tighter">
+                                    {(i * 2 === 0 ? 24 : i * 2).toString().padStart(2, '0')}
+                                </span>
+                            </div>
+                        ))}
+
+                        {/* GMT Markers (Luminous style) */}
+                        {[...Array(60)].map((_, i) => (
+                            <div key={i} className="absolute w-full h-full" style={{ transform: `rotate(${i * 6}deg)` }}>
+                                {i % 5 === 0 ? (
+                                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-[3px] h-3.5 bg-neutral-200 rounded-sm shadow-[0_0_5px_rgba(255,255,255,0.2)]" />
+                                ) : (
+                                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-[1px] h-1.5 bg-white/20" />
+                                )}
+                            </div>
+                        ))}
+
+                        {/* Hands Component */}
+                        <div className="absolute inset-0 z-20">
+                            {/* Hour Hand */}
+                            <motion.div
+                                className="absolute bottom-1/2 left-1/2 w-[6px] h-[26%] bg-white origin-bottom"
+                                animate={{ rotate: hourDeg }}
+                                style={{
+                                    x: "-50%",
+                                    clipPath: 'polygon(50% 0%, 100% 15%, 100% 100%, 0% 100%, 0% 15%)',
+                                    filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.5))'
+                                }}
+                            />
+                            {/* Minute Hand */}
+                            <motion.div
+                                className="absolute bottom-1/2 left-1/2 w-[4px] h-[36%] bg-white origin-bottom"
+                                animate={{ rotate: minuteDeg }}
+                                style={{
+                                    x: "-50%",
+                                    clipPath: 'polygon(50% 0%, 100% 10%, 100% 100%, 0% 100%, 0% 10%)',
+                                    filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.5))'
+                                }}
+                            />
+                            {/* Second Hand */}
+                            <motion.div
+                                className="absolute bottom-1/2 left-1/2 w-[1.5px] h-[44%] bg-accent1 origin-bottom"
+                                style={{
+                                    x: "-50%",
+                                    rotate: secondDeg,
+                                    filter: 'drop-shadow(0 0 2px rgba(194,160,122,0.5))'
+                                }}
+                            />
                         </div>
-                    ))}
 
-                    {/* Date Window */}
-                    <div className="absolute right-[20%] top-1/2 -translate-y-1/2 w-8 h-7 bg-[#050505] border border-white/10 rounded-sm flex items-center justify-center shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)] overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/5" />
-                        <span className="text-[11px] font-mono font-bold text-white tracking-tighter relative z-10">{date}</span>
-                    </div>
+                        {/* Center Pin */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-800 rounded-full z-30 border border-white/20 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-accent1 rounded-full" />
+                        </div>
 
-                    {/* Branding */}
-                    <div className="absolute top-[30%] left-1/2 -translate-x-1/2 text-center w-full">
-                        <p className="text-[8px] font-black tracking-[0.4em] text-white/70 uppercase mb-0.5">ROLEX-STYLE</p>
-                        <p className="text-[5px] font-bold tracking-[0.2em] text-accent1/50 uppercase">OFFICIAL CHRONOMETER</p>
-                    </div>
-                    <div className="absolute bottom-[30%] left-1/2 -translate-x-1/2 text-center w-full">
-                        <p className="text-[6px] font-bold tracking-[0.2em] text-white/30 uppercase">SWISS MADE</p>
-                    </div>
-
-                    {/* Hour Hand (Sword Style) */}
-                    <motion.div
-                        className="absolute bottom-1/2 left-1/2 w-[6px] h-[28%] bg-white rounded-sm origin-bottom z-20"
-                        animate={{ rotate: hourDeg }}
-                        transition={{ type: "spring", stiffness: 50, damping: 20 }}
-                        style={{
-                            x: "-50%",
-                            clipPath: 'polygon(50% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%)',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.8)'
-                        }}
-                    >
-                        {/* Lume strip */}
-                        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[2px] h-[60%] bg-cyan-400/40 blur-[0.5px]" />
-                        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[1px] h-[60%] bg-white shadow-[0_0_5px_rgba(34,211,238,0.8)]" />
-                    </motion.div>
-
-                    {/* Minute Hand (Sword Style) */}
-                    <motion.div
-                        className="absolute bottom-1/2 left-1/2 w-[4px] h-[38%] bg-white rounded-sm origin-bottom z-30"
-                        animate={{ rotate: minuteDeg }}
-                        transition={{ type: "spring", stiffness: 50, damping: 20 }}
-                        style={{
-                            x: "-50%",
-                            clipPath: 'polygon(50% 0%, 100% 15%, 100% 100%, 0% 100%, 0% 15%)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.8)'
-                        }}
-                    >
-                        {/* Lume strip */}
-                        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[1.5px] h-[70%] bg-cyan-400/40 blur-[0.5px]" />
-                        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[1px] h-[70%] bg-white shadow-[0_0_5px_rgba(34,211,238,0.8)]" />
-                    </motion.div>
-
-                    {/* Second Hand (Needle Style) */}
-                    <div
-                        className="absolute bottom-1/2 left-1/2 w-[1px] h-[45%] bg-accent1 origin-bottom z-40"
-                        style={{
-                            transform: `translateX(-50%) rotate(${secondDeg}deg)`,
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
-                        }}
-                    >
-                        {/* Needle point point */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-accent1 shadow-glow" />
-                        {/* Counter-weight circle */}
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border border-accent1/50 bg-[#050505]" />
-                    </div>
-
-                    {/* Center Pin / Cap */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-br from-[#333] to-[#111] rounded-full z-50 shadow-2xl border border-white/20 flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 bg-accent1/80 rounded-full border border-white/10" />
-                    </div>
-
-                    {/* Glass Reflection Overlay */}
-                    <div className="absolute inset-0 pointer-events-none z-[60] rounded-full overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08]" />
-                        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
+                        {/* Reflections */}
+                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/[0.02] to-white/[0.05] z-40" />
                     </div>
                 </div>
             </div>
