@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
-import { Pin, Heart, LogOut, Send, Loader2, X, Upload } from 'lucide-react';
+import { Pin, Heart, LogOut, Send, Loader2, X, Upload, EyeOff, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const ADMIN_EMAILS = ['ahalyajena28@gmail.com', 'ahalyajena28@email.com'];
@@ -18,13 +18,13 @@ const itemVariants = {
     visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4 } }
 };
 
-const SignatureCard = ({ id, name, created_at, message, is_pinned, liked_by, avatar_url, isAdmin, onTogglePin, onToggleLike }) => {
+const SignatureCard = ({ id, name, created_at, message, is_pinned, liked_by, is_hidden, avatar_url, isAdmin, onTogglePin, onToggleLike, onToggleHide, onDelete }) => {
     const formattedDate = new Date(created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
 
     return (
         <motion.div
             variants={itemVariants}
-            className={`relative bg-[#0d0d0d] rounded-2xl p-6 flex flex-col h-full ${is_pinned ? 'border border-[#2563eb] shadow-[0_0_20px_rgba(37,99,235,0.15)] ring-1 ring-[#2563eb]/50' : 'border border-white/5 hover:border-white/10 transition-colors duration-300'}`}
+            className={`relative bg-[#0d0d0d] rounded-2xl p-6 flex flex-col h-full ${is_pinned ? 'border border-[#2563eb] shadow-[0_0_20px_rgba(37,99,235,0.15)] ring-1 ring-[#2563eb]/50' : 'border border-white/5 hover:border-white/10 transition-colors duration-300'} ${is_hidden ? 'opacity-50' : ''}`}
         >
             {is_pinned && (
                 <div className="absolute -top-3 -right-3 bg-[#2563eb] w-7 h-7 rounded-full flex items-center justify-center z-10 shadow-lg">
@@ -70,15 +70,27 @@ const SignatureCard = ({ id, name, created_at, message, is_pinned, liked_by, ava
                             <span className="text-[#ec4899] text-[11px] italic font-medium whitespace-nowrap">Liked by {liked_by}</span>
                         </div>
                     )}
+                    {is_hidden && (
+                        <div className="flex items-center gap-2">
+                            <EyeOff size={14} className="text-[#f59e0b]" />
+                            <span className="text-[#f59e0b] text-[11px] italic font-medium whitespace-nowrap">Hidden</span>
+                        </div>
+                    )}
                 </div>
 
                 {isAdmin && (
-                    <div className="flex items-center gap-2">
-                        <button onClick={() => onToggleLike(id, !liked_by)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#ec4899]/20 hover:text-[#ec4899] transition-colors" title="Toggle Like">
+                    <div className="flex items-center gap-1">
+                        <button onClick={() => onToggleLike(id, !liked_by)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#ec4899]/20 hover:text-[#ec4899] transition-colors" title="Toggle Like">
                             <Heart size={14} className={liked_by ? "text-[#ec4899] fill-[#ec4899]" : "text-white/50"} />
                         </button>
-                        <button onClick={() => onTogglePin(id, !is_pinned)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#2563eb]/20 hover:text-[#2563eb] transition-colors" title="Toggle Pin">
+                        <button onClick={() => onTogglePin(id, !is_pinned)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#2563eb]/20 hover:text-[#2563eb] transition-colors" title="Toggle Pin">
                             <Pin size={14} className={is_pinned ? "text-[#2563eb] fill-[#2563eb]" : "text-white/50"} />
+                        </button>
+                        <button onClick={() => onToggleHide(id, !is_hidden)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#f59e0b]/20 hover:text-[#f59e0b] transition-colors" title={is_hidden ? "Unhide" : "Hide"}>
+                            <EyeOff size={14} className={is_hidden ? "text-[#f59e0b]" : "text-white/50"} />
+                        </button>
+                        <button onClick={() => { if (window.confirm('Are you sure you want to delete this message?')) onDelete(id); }} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-500 transition-colors" title="Delete">
+                            <Trash2 size={14} className="text-white/50 hover:text-red-500" />
                         </button>
                     </div>
                 )}
@@ -249,6 +261,29 @@ const GuestbookPage = () => {
         }
     };
 
+    const toggleHide = async (id, isHidden) => {
+        try {
+            const { error } = await supabase.from('guestbook').update({ is_hidden: isHidden }).eq('id', id);
+            if (error) throw error;
+            fetchSignatures();
+        } catch (e) {
+            console.error('Error toggling hide:', e);
+            alert("Oops! Make sure you have added the 'is_hidden' column to your Supabase schema.");
+        }
+    };
+
+    const deleteSignature = async (id) => {
+        try {
+            const { error } = await supabase.from('guestbook').delete().eq('id', id);
+            if (error) throw error;
+            fetchSignatures();
+        } catch (e) {
+            console.error('Error deleting signature:', e);
+        }
+    };
+
+    const visibleSignatures = signatures.filter(sig => isAdmin || !sig.is_hidden);
+
     const userNameDisplay = user?.user_metadata?.full_name || user?.user_metadata?.user_name || 'Guest';
     let userHandleDisplay = user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || '';
     if (userHandleDisplay && !userHandleDisplay.startsWith('@')) {
@@ -356,7 +391,7 @@ const GuestbookPage = () => {
                     <Loader2 size={32} className="animate-spin text-white" />
                     <p className="text-white/40 text-sm font-mono tracking-widest uppercase">Fetching DB...</p>
                 </div>
-            ) : signatures.length === 0 ? (
+            ) : visibleSignatures.length === 0 ? (
                 <div className="text-center py-20 text-white/40 text-sm font-medium">
                     No signatures yet. Be the first to leave one!
                 </div>
@@ -367,13 +402,15 @@ const GuestbookPage = () => {
                     animate="visible"
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max"
                 >
-                    {signatures.map((sig) => (
+                    {visibleSignatures.map((sig) => (
                         <SignatureCard
                             key={sig.id}
                             {...sig}
                             isAdmin={isAdmin}
                             onTogglePin={togglePin}
                             onToggleLike={toggleLike}
+                            onToggleHide={toggleHide}
+                            onDelete={deleteSignature}
                         />
                     ))}
                 </motion.div>
