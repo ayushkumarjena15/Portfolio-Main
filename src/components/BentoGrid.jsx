@@ -43,9 +43,9 @@ const MiniGear = ({ rotation }) => {
 const projectNames = ['SkillTwin', 'D-Liver', 'Agri Sahayak'];
 
 const timezones = [
-    { label: 'UK', flag: '🇬🇧', tz: 'Europe/London', offset: 0 },
-    { label: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', offset: 5.5 },
-    { label: 'USA', flag: '🇺🇸', tz: 'America/New_York', offset: -5 },
+    { label: 'UK', flag: 'gb', tz: 'Europe/London', offset: 0 },
+    { label: 'India', flag: 'in', tz: 'Asia/Kolkata', offset: 5.5 },
+    { label: 'USA', flag: 'us', tz: 'America/New_York', offset: -5 },
 ];
 
 const FounderCard = ({ cardVariants, selectedTimezone, onTimezoneChange }) => {
@@ -86,7 +86,7 @@ const FounderCard = ({ cardVariants, selectedTimezone, onTimezoneChange }) => {
                                 : 'border-white/10 text-secondary hover:border-white/30'
                                 }`}
                         >
-                            {zone.flag} {zone.label}
+                            <img src={`https://flagcdn.com/20x15/${zone.flag}.png`} alt={zone.label} className="w-5 h-3.5 rounded-[2px] object-cover" /> {zone.label}
                         </button>
                     ))}
                 </div>
