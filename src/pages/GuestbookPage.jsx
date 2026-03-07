@@ -56,41 +56,43 @@ const SignatureCard = ({ id, name, created_at, message, is_pinned, liked_by, is_
                 {message}
             </p>
 
-            <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-4">
+            <div className="mt-4 pt-4 border-t border-white/10 relative z-10">
+                {/* Status Tags */}
+                <div className="flex items-center gap-3 flex-wrap">
                     {is_pinned && (
-                        <div className="flex items-center gap-2 text-[#2563eb]">
+                        <div className="flex items-center gap-1.5 text-[#2563eb]">
                             <Pin size={12} className="fill-[#2563eb]" />
-                            <span className="text-xs font-bold whitespace-nowrap">Pinned</span>
+                            <span className="text-[10px] font-bold whitespace-nowrap">Pinned</span>
                         </div>
                     )}
                     {liked_by && (
-                        <div className="flex items-center gap-2">
-                            <Heart size={14} className="text-[#ec4899] fill-[#ec4899]" />
-                            <span className="text-[#ec4899] text-[11px] italic font-medium whitespace-nowrap">Liked by {liked_by}</span>
+                        <div className="flex items-center gap-1.5">
+                            <Heart size={12} className="text-[#ec4899] fill-[#ec4899]" />
+                            <span className="text-[#ec4899] text-[10px] italic font-medium whitespace-nowrap">Liked by {liked_by}</span>
                         </div>
                     )}
                     {is_hidden && (
-                        <div className="flex items-center gap-2">
-                            <EyeOff size={14} className="text-[#f59e0b]" />
-                            <span className="text-[#f59e0b] text-[11px] italic font-medium whitespace-nowrap">Hidden</span>
+                        <div className="flex items-center gap-1.5">
+                            <EyeOff size={12} className="text-[#f59e0b]" />
+                            <span className="text-[#f59e0b] text-[10px] italic font-medium whitespace-nowrap">Hidden</span>
                         </div>
                     )}
                 </div>
 
+                {/* Admin Action Buttons */}
                 {isAdmin && (
-                    <div className="flex items-center gap-1">
-                        <button onClick={() => onToggleLike(id, !liked_by)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#ec4899]/20 hover:text-[#ec4899] transition-colors" title="Toggle Like">
-                            <Heart size={14} className={liked_by ? "text-[#ec4899] fill-[#ec4899]" : "text-white/50"} />
+                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-white/5">
+                        <button onClick={() => onToggleLike(id, !liked_by)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#ec4899]/20 transition-colors" title="Toggle Like">
+                            <Heart size={13} className={liked_by ? "text-[#ec4899] fill-[#ec4899]" : "text-white/40"} />
                         </button>
-                        <button onClick={() => onTogglePin(id, !is_pinned)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#2563eb]/20 hover:text-[#2563eb] transition-colors" title="Toggle Pin">
-                            <Pin size={14} className={is_pinned ? "text-[#2563eb] fill-[#2563eb]" : "text-white/50"} />
+                        <button onClick={() => onTogglePin(id, !is_pinned)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#2563eb]/20 transition-colors" title="Toggle Pin">
+                            <Pin size={13} className={is_pinned ? "text-[#2563eb] fill-[#2563eb]" : "text-white/40"} />
                         </button>
-                        <button onClick={() => onToggleHide(id, !is_hidden)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#f59e0b]/20 hover:text-[#f59e0b] transition-colors" title={is_hidden ? "Unhide" : "Hide"}>
-                            <EyeOff size={14} className={is_hidden ? "text-[#f59e0b]" : "text-white/50"} />
+                        <button onClick={() => onToggleHide(id, !is_hidden)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#f59e0b]/20 transition-colors" title={is_hidden ? "Unhide" : "Hide"}>
+                            <EyeOff size={13} className={is_hidden ? "text-[#f59e0b]" : "text-white/40"} />
                         </button>
-                        <button onClick={() => onDelete(id)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-500 transition-colors" title="Delete">
-                            <Trash2 size={14} className="text-white/50 hover:text-red-500" />
+                        <button onClick={() => onDelete(id)} className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 transition-colors ml-auto" title="Delete">
+                            <Trash2 size={13} className="text-white/40 hover:text-red-500" />
                         </button>
                     </div>
                 )}
