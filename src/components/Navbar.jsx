@@ -229,36 +229,58 @@ const Navbar = () => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="fixed inset-0 bg-background/95 backdrop-blur-2xl z-40 flex flex-col items-center justify-center p-8 space-y-8"
+                        className="fixed inset-0 bg-background/95 backdrop-blur-2xl z-40 flex flex-col items-center justify-center p-8 space-y-6"
                     >
-                        {navLinks.map((link) => (
+                        <div className="flex flex-col items-center space-y-4">
+                            {navLinks.map((link) => (
+                                <React.Fragment key={link.name}>
+                                    {!link.hasDropdown ? (
+                                        <Link
+                                            to={link.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className={`text-3xl font-black uppercase tracking-widest ${isActive(link.href) ? 'text-accent1' : 'text-secondary'}`}
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    ) : (
+                                        <div className="flex flex-col items-center space-y-4">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 mt-4 mb-2">— {link.name} —</p>
+                                            <Link onClick={() => setIsMobileMenuOpen(false)} to="/labs" className="text-2xl font-black uppercase tracking-widest text-secondary hover:text-accent1">Labs</Link>
+                                            <Link onClick={() => setIsMobileMenuOpen(false)} to="/links" className="text-2xl font-black uppercase tracking-widest text-secondary hover:text-accent1">Links</Link>
+                                            <Link onClick={() => setIsMobileMenuOpen(false)} to="/uses" className="text-2xl font-black uppercase tracking-widest text-secondary hover:text-accent1">Uses</Link>
+                                            <Link onClick={() => setIsMobileMenuOpen(false)} to="/guestbook" className="text-2xl font-black uppercase tracking-widest text-secondary hover:text-accent1">Guestbook</Link>
+                                        </div>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col items-center gap-6 mt-8 border-t border-white/10 pt-8 w-full">
+                            <div className="flex items-center gap-6">
+                                <a
+                                    href="/resume.pdf"
+                                    download
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="flex items-center gap-3 text-xl font-black uppercase tracking-widest text-accent1"
+                                >
+                                    <Download size={18} />
+                                    Resume
+                                </a>
+                                <div className="w-px h-8 bg-white/10" />
+                                <button
+                                    onClick={() => { toggleTheme(); setIsMobileMenuOpen(false); }}
+                                    className="flex items-center gap-3 text-xl font-black uppercase tracking-widest text-secondary hover:text-white transition-colors"
+                                >
+                                    {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                                </button>
+                            </div>
                             <Link
-                                key={link.name}
-                                to={link.href}
+                                to="/book"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={`text-3xl font-black uppercase tracking-widest ${isActive(link.href) ? 'text-accent1' : 'text-secondary'
-                                    }`}
+                                className="px-8 py-3 bg-white text-black rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-white/5"
                             >
-                                {link.name}
+                                Book a Call
                             </Link>
-                        ))}
-                        <div className="flex items-center gap-6 mt-4 border-t border-white/10 pt-8 w-full justify-center">
-                            <a
-                                href="/resume.pdf"
-                                download
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center gap-3 text-2xl font-black uppercase tracking-widest text-accent1"
-                            >
-                                <Download size={20} />
-                                Resume
-                            </a>
-                            <div className="w-px h-8 bg-white/10" />
-                            <button
-                                onClick={() => { toggleTheme(); setIsMobileMenuOpen(false); }}
-                                className="flex items-center gap-3 text-2xl font-black uppercase tracking-widest text-secondary hover:text-white transition-colors"
-                            >
-                                {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
-                            </button>
                         </div>
                     </motion.div>
                 )}

@@ -7,12 +7,15 @@ import AboutPage from './pages/AboutPage';
 import ProjectsPage from './pages/ProjectsPage';
 import LinksPage from './pages/LinksPage';
 import UsesPage from './pages/UsesPage';
+import BlogsPage from './pages/BlogsPage';
+import LabsPage from './pages/LabsPage';
 import GuestbookPage from './pages/GuestbookPage';
 import BookCallPage from './pages/BookCallPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
+import { Analytics } from '@vercel/analytics/react';
 
 function ScrollHandler() {
   const { pathname } = useLocation();
@@ -37,6 +40,8 @@ function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/links" element={<LinksPage />} />
           <Route path="/uses" element={<UsesPage />} />
+          <Route path="/blogs" element={<BlogsPage />} />
+          <Route path="/labs" element={<LabsPage />} />
           <Route path="/guestbook" element={<GuestbookPage />} />
           <Route path="/book" element={<BookCallPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -44,6 +49,7 @@ function App() {
         </Routes>
       </AnimatePresence>
       <Footer />
+      <Analytics />
     </div>
   );
 }

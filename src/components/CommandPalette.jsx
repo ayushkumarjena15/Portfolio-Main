@@ -14,7 +14,7 @@ const commands = [
             { id: 'home', title: 'Home', subtitle: 'Go to homepage', icon: <Home size={16} strokeWidth={2} />, href: '/' },
             { id: 'about', title: 'About', subtitle: 'Learn more about me', icon: <User size={16} strokeWidth={2} />, href: '/about' },
             { id: 'projects', title: 'Projects', subtitle: 'View my work', icon: <Briefcase size={16} strokeWidth={2} />, href: '/projects' },
-            { id: 'blog', title: 'Blog', subtitle: 'Read my thoughts', icon: <FileText size={16} strokeWidth={2} />, href: '/links' }, // Pointing to links until a blog path exists
+            { id: 'blog', title: 'Blog', subtitle: 'Read my thoughts', icon: <FileText size={16} strokeWidth={2} />, href: '/blogs' },
             { id: 'guestbook', title: 'Guestbook', subtitle: 'Leave a message', icon: <Book size={16} strokeWidth={2} />, href: '/guestbook' },
             { id: 'uses', title: 'Uses', subtitle: 'My tech stack', icon: <Monitor size={16} strokeWidth={2} />, href: '/uses' },
             { id: 'links', title: 'Links', subtitle: 'All my links', icon: <Link2 size={16} strokeWidth={2} />, href: '/links' },
