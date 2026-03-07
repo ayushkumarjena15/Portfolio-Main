@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform, useSpring, useVelocity } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useAnimationFrame, useTransform, useSpring, useVelocity } from 'framer-motion';
 import { MapPin, Github, Linkedin, Twitter, Copy, ArrowUpRight, Sparkles, Navigation } from 'lucide-react';
 
 const MiniGear = ({ rotation }) => {
@@ -37,6 +37,82 @@ const MiniGear = ({ rotation }) => {
                 />
             ))}
         </motion.svg>
+    );
+};
+
+const projectNames = ['SkillTwin', 'D-Liver', 'Agri Sahayak'];
+
+const FounderCard = ({ cardVariants }) => {
+    const [activeProject, setActiveProject] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveProject(prev => (prev + 1) % projectNames.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <motion.div
+            className="bento-card md:col-span-2 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start min-h-[180px] relative overflow-hidden group/card"
+            custom={4}
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+        >
+            <div className="absolute inset-0 opacity-5 group-hover/card:opacity-10 transition-opacity duration-1000">
+                <img src="/gallery/abstract_gold.jpg" className="w-full h-full object-cover" alt="" />
+            </div>
+            {/* Globe Section */}
+            <div className="flex-1 space-y-4 relative z-10">
+                <p className="text-[10px] text-green-400 uppercase tracking-[0.3em] font-bold">Available Globally</p>
+                <h3 className="text-xl font-heading font-bold text-white">
+                    Adaptable across<br />time zones
+                </h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {['🇬🇧 UK', '🇮🇳 India', '🇺🇸 USA'].map((zone, i) => (
+                        <span
+                            key={zone}
+                            className={`px-4 py-2 rounded-full text-xs font-bold border transition-all duration-500 ${i === 1
+                                ? 'bg-accent1/20 border-accent1/40 text-accent1'
+                                : 'border-white/10 text-secondary'
+                                }`}
+                        >
+                            {zone}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Founder Info */}
+            <div className="flex-1 text-right space-y-3 relative z-10">
+                <div className="flex justify-end mb-4">
+                    <div className="w-16 h-1 bg-accent1 rounded-full opacity-50" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-heading font-black text-white">
+                    Creator of{' '}
+                    <span className="relative inline-block overflow-hidden align-bottom" style={{ height: '1.2em', minWidth: '180px' }}>
+                        <AnimatePresence mode="wait">
+                            <motion.span
+                                key={activeProject}
+                                className="text-accent1 font-serif italic text-glow absolute right-0"
+                                initial={{ y: '100%', opacity: 0 }}
+                                animate={{ y: '0%', opacity: 1 }}
+                                exit={{ y: '-100%', opacity: 0 }}
+                                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            >
+                                {projectNames[activeProject]}
+                            </motion.span>
+                        </AnimatePresence>
+                    </span>
+                </h3>
+                <p className="text-secondary text-sm italic flex items-center justify-end gap-2">
+                    &lt; Crafting Digital Experiences /&gt;
+                    <ArrowUpRight size={14} className="text-accent1" />
+                </p>
+            </div>
+        </motion.div>
     );
 };
 
@@ -386,52 +462,7 @@ const BentoGrid = () => {
                 </motion.div>
 
                 {/* Card 5: Founder Card */}
-                <motion.div
-                    className="bento-card md:col-span-2 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start min-h-[180px] relative overflow-hidden group/card"
-                    custom={4}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                >
-                    <div className="absolute inset-0 opacity-5 group-hover/card:opacity-10 transition-opacity duration-1000">
-                        <img src="/gallery/abstract_gold.jpg" className="w-full h-full object-cover" alt="" />
-                    </div>
-                    {/* Globe Section */}
-                    <div className="flex-1 space-y-4 relative z-10">
-                        <p className="text-[10px] text-green-400 uppercase tracking-[0.3em] font-bold">Available Globally</p>
-                        <h3 className="text-xl font-heading font-bold text-white">
-                            Adaptable across<br />time zones
-                        </h3>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {['🇬🇧 UK', '🇮🇳 India', '🇺🇸 USA'].map((zone, i) => (
-                                <span
-                                    key={zone}
-                                    className={`px-4 py-2 rounded-full text-xs font-bold border transition-all duration-500 ${i === 1
-                                        ? 'bg-accent1/20 border-accent1/40 text-accent1'
-                                        : 'border-white/10 text-secondary'
-                                        }`}
-                                >
-                                    {zone}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Founder Info */}
-                    <div className="flex-1 text-right space-y-3 relative z-10">
-                        <div className="flex justify-end mb-4">
-                            <div className="w-16 h-1 bg-accent1 rounded-full opacity-50" />
-                        </div>
-                        <h3 className="text-2xl md:text-3xl font-heading font-black text-white">
-                            Creator of <span className="text-accent1 font-serif italic text-glow">SkillTwin</span>
-                        </h3>
-                        <p className="text-secondary text-sm italic flex items-center justify-end gap-2">
-                            &lt; Crafting Digital Experiences /&gt;
-                            <ArrowUpRight size={14} className="text-accent1" />
-                        </p>
-                    </div>
-                </motion.div>
+                <FounderCard cardVariants={cardVariants} />
 
                 {/* Card 6: Detail Card with I sweat spacing */}
                 <motion.div
