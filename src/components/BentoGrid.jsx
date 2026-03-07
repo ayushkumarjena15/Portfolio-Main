@@ -517,7 +517,7 @@ const AnalogClock = ({ timezone }) => {
     const hourDeg = ((hours % 12) + minutes / 60) * 30;
 
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-[#080808] min-h-[220px] select-none">
+        <div className="relative w-full h-full flex items-center justify-center bg-background min-h-[220px] select-none">
             {/* Outer Case / Bezel */}
             <div className="relative w-44 h-44 md:w-52 md:h-52 rounded-full p-1 bg-gradient-to-br from-[#222] via-[#111] to-[#333] shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_-2px_5px_rgba(255,255,255,0.1)]">
 
